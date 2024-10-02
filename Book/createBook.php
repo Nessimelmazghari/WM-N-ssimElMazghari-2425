@@ -16,7 +16,7 @@ $genre_id = $data['genre_id'];
 
 $query = "INSERT INTO books (title, isbn, description, author_id, genre_id) VALUES (?, ?, ?, ?, ?)";
 $stmt = $conn->prepare($query);
-$stmt->bind_param("ssiii", $title, $isbn, $description, $author_id, $genre_id);
+$stmt->bind_param("sssii", $title, $isbn, $description, $author_id, $genre_id);
 $stmt->execute();
 
 if ($stmt->affected_rows > 0) {
