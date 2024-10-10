@@ -1,7 +1,7 @@
 # Books and Authors Management Web App
 
 ## Repository Links
-**[Main html bestand en basis url waarin alle endpoints staan](https://nessimelmazghari-odisee.be/)**
+**Main html bestand en basis url waarin alle endpoints staan [https://nessimelmazghari-odisee.be/](https://nessimelmazghari-odisee.be/)**
 
 ## API Endpoints
 De webapp communiceert met de volgende API endpoints:
