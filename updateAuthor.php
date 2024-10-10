@@ -1,6 +1,6 @@
 <?php
 // Verbinding met de database
-require_once 'php/inc/db.php';
+require_once 'php/inc/db.php'; // Zorg ervoor dat db.php de MySQLi-verbinding bevat
 
 header('Content-Type: application/json');
 
@@ -17,18 +17,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
 
         // Werk de gegevens van de auteur bij in de database
         try {
-            $stmt = $pdo->prepare("UPDATE authors SET first_name = ?, last_name = ?, birth_year = ? WHERE id = ?");
-            $stmt->execute([$first_name, $last_name, $birth_year, $id]);
+            $stmt = $conn->prepare("UPDATE authors SET first_name = ?, last_name = ?, birth_year = ? WHERE id = ?");
+            $stmt->bind_param("ssii", $first_name, $last_name, $birth_year, $id);
 
-            echo json_encode([
-                'status' => 'success',
-                'message' => 'Auteur succesvol bijgewerkt'
-            ]);
+            if ($stmt->execute()) {
+                echo json_encode([
+                    'status' => 'success',
+                    'message' => 'Auteur succesvol bijgewerkt'
+                ]);
+            } else {
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Fout bij het bijwerken van de auteur: ' . $stmt->error
+                ]);
+            }
 
-        } catch (PDOException $e) {
+            $stmt->close();
+
+        } catch (Exception $e) {
             echo json_encode([
                 'status' => 'error',
-                'message' => 'Database fout: ' . $e->getMessage()
+                'message' => 'Er is een fout opgetreden: ' . $e->getMessage()
             ]);
         }
 

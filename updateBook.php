@@ -17,7 +17,7 @@ $genre_id = $data['genre_id'];
 
 $query = "UPDATE books SET title=?, isbn=?, description=?, author_id=?, genre_id=? WHERE id=?";
 $stmt = $conn->prepare($query);
-$stmt->bind_param("ssiiii", $title, $isbn, $description, $author_id, $genre_id, $id);
+$stmt->bind_param("sssiii", $title, $isbn, $description, $author_id, $genre_id, $id);
 $stmt->execute();
 
 if ($stmt->affected_rows > 0) {

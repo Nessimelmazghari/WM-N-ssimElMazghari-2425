@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        #adminSection {
+            display: none; /* Verbergen tenzij de gebruiker admin is */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welkom op het dashboard</h1>
+    
+    <h2>Gebruikers beheren</h2>
+    <table id="usersTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Naam</th>
+                <th>Email</th>
+                <th>Acties</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Gebruikersgegevens komen hier -->
+        </tbody>
+    </table>
+
+    <div id="createUserSection">
+        <h2>Nieuwe Gebruiker Toevoegen</h2>
+        <form id="createUserForm" onsubmit="addUser(event)">
+            <label for="name">Naam:</label>
+            <input type="text" id="name" required>
+            <label for="email">Email:</label>
+            <input type="email" id="email" required>
+            <button type="submit">Toevoegen</button>
+        </form>
+    </div>
+
+    <div id="adminSection">
+        <h2>Login Gebruikers Beheren (Admin)</h2>
+        <table id="loginUsersTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Gebruikersnaam</th>
+                    <th>Admin</th>
+                    <th>Acties</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Login gebruikersgegevens komen hier -->
+            </tbody>
+        </table>
+
+        <h2>Nieuwe Login Gebruiker Toevoegen</h2>
+        <form id="createLoginUserForm" onsubmit="addLoginUser(event)">
+            <label for="loginUsername">Gebruikersnaam:</label>
+            <input type="text" id="loginUsername" required>
+            <label for="loginPassword">Wachtwoord:</label>
+            <input type="password" id="loginPassword" required>
+            <label for="isAdmin">Is Admin:</label>
+            <select id="isAdmin">
+                <option value="0">Nee</option>
+                <option value="1">Ja</option>
+            </select>
+            <button type="submit">Toevoegen</button>
+        </form>
+    </div>
+
+    <script>
+        // Controleer of de gebruiker admin is en toon de adminsectie indien nodig
+        window.onload = function() {
+            const isAdmin = sessionStorage.getItem('is_admin') === '1'; // Verkrijg de is_admin status
+            if (isAdmin) {
+                document.getElementById('adminSection').style.display = 'block'; // Maak de adminsectie zichtbaar
+            }
+            fetchUsers();
+            fetchLoginUsers();
+        };
+
+        async function fetchUsers() {
+            try {
+                const response = await fetch('https://nessimelmazghari-odisee.be/testAPI.php');
+                const users = await response.json();
+                displayUsers(users);
+            } catch (error) {
+                console.error('Fout bij het ophalen van gebruikers:', error);
+            }
+        }
+
+        function displayUsers(users) {
+            const usersTable = document.getElementById('usersTable').querySelector('tbody');
+            usersTable.innerHTML = '';
+
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.id}</td>
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                    <td>
+                        <button onclick="showUpdateUserForm(${user.id}, '${user.name}', '${user.email}')">Bijwerken</button>
+                        <button onclick="deleteUser(${user.id})">Verwijderen</button>
+                    </td>
+                `;
+                usersTable.appendChild(row);
+            });
+        }
+
+        async function deleteUser(id) {
+            try {
+                const response = await fetch(`https://nessimelmazghari-odisee.be/testAPI.php`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id }) // Verzenden van ID als JSON
+                });
+                if (response.ok) {
+                    fetchUsers();
+                } else {
+                    const errorResponse = await response.json();
+                    console.error('Fout bij het verwijderen van gebruiker:', errorResponse.error);
+                }
+            } catch (error) {
+                console.error('Fout bij het verwijderen van gebruiker:', error);
+            }
+        }
+
+        async function addUser(event) {
+            event.preventDefault(); // Voorkom dat de pagina ververst
+
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+
+            try {
+                const response = await fetch('https://nessimelmazghari-odisee.be/testAPI.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, email })
+                });
+                if (response.ok) {
+                    fetchUsers();
+                    document.getElementById('createUserForm').reset();
+                }
+            } catch (error) {
+                console.error('Fout bij het toevoegen van gebruiker:', error);
+            }
+        }
+
+        function showUpdateUserForm(id, name, email) {
+            const newName = prompt("Voer nieuwe naam in:", name);
+            const newEmail = prompt("Voer nieuw email in:", email);
+
+            if (newName !== null && newEmail !== null) {
+                updateUser(id, newName, newEmail);
+            }
+        }
+
+        async function updateUser(id, name, email) {
+            try {
+                const response = await fetch('https://nessimelmazghari-odisee.be/testAPI.php', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id, name, email })
+                });
+                if (response.ok) {
+                    fetchUsers();
+                }
+            } catch (error) {
+                console.error('Fout bij het bijwerken van gebruiker:', error);
+            }
+        }
+
+        async function fetchLoginUsers() {
+            try {
+                const response = await fetch('https://nessimelmazghari-odisee.be/loginAPI.php');
+                const loginUsers = await response.json();
+                displayLoginUsers(loginUsers);
+            } catch (error) {
+                console.error('Fout bij het ophalen van login gebruikers:', error);
+            }
+        }
+
+        function displayLoginUsers(users) {
+            const loginUsersTable = document.getElementById('loginUsersTable').querySelector('tbody');
+            loginUsersTable.innerHTML = '';
+
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.id}</td>
+                    <td>${user.username}</td>
+                    <td>${user.is_admin ? 'Ja' : 'Nee'}</td>
+                    <td>
+                        <button onclick="showUpdateLoginUserForm(${user.id}, '${user.username}', ${user.is_admin})">Bijwerken</button>
+                        <button onclick="deleteLoginUser(${user.id})">Verwijderen</button>
+                    </td>
+                `;
+                loginUsersTable.appendChild(row);
+            });
+        }
+
+        async function addLoginUser(event) {
+            event.preventDefault(); // Voorkom dat de pagina ververst
+
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            const isAdmin = document.getElementById('isAdmin').value;
+
+            try {
+                const response = await fetch('https://nessimelmazghari-odisee.be/loginAPI.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password, is_admin: isAdmin })
+                });
+                if (response.ok) {
+                    fetchLoginUsers();
+                    document.getElementById('createLoginUserForm').reset();
+                }
+            } catch (error) {
+                console.error('Fout bij het toevoegen van login gebruiker:', error);
+            }
+        }
+
+        function showUpdateLoginUserForm(id, username, isAdmin) {
+            const newUsername = prompt("Voer nieuwe gebruikersnaam in:", username);
+            const newIsAdmin = confirm("Is dit een admin gebruiker?") ? 1 : 0; // Bevestiging voor admin
+
+            if (newUsername !== null) {
+                updateLoginUser(id, newUsername, newIsAdmin);
+            }
+        }
+
+        async function updateLoginUser(id, username, isAdmin) {
+            try {
+                const response = await fetch('https://nessimelmazghari-odisee.be/loginAPI.php', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id, username, is_admin: isAdmin })
+                });
+                if (response.ok) {
+                    fetchLoginUsers();
+                }
+            } catch (error) {
+                console.error('Fout bij het bijwerken van login gebruiker:', error);
+            }
+        }
+
+        async function deleteLoginUser(id) {
+            try {
+                const response = await fetch('https://nessimelmazghari-odisee.be/loginAPI.php', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id }) // Verzenden van ID als JSON
+                });
+                if (response.ok) {
+                    fetchLoginUsers();
+                }
+            } catch (error) {
+                console.error('Fout bij het verwijderen van login gebruiker:', error);
+            }
+        }
+    </script>
+</body>
+</html>
