@@ -8,6 +8,7 @@ De webapp communiceert met de volgende API endpoints:
 --Boeken
 - **[Alle Boeken ophalen](https://nessimelmazghari-odisee.be/getBooks.php)**: `GET /getBooks.php`
 - **[1 Boek ophalen](https://nessimelmazghari-odisee.be/getBooks.php)**: `GET /getBook.php`
+
 -**[Boek toevoegen](https://nessimelmazghari-odisee.be/createBook.php)**: `POST /createBook.php`
 - **[Boek bewerken](https://nessimelmazghari-odisee.be/updateBook.php)**: `PUT /updateBook.php`
 - **[Boek verwijderen](https://nessimelmazghari-odisee.be/deleteBook.php)**: `DELETE /deleteBook.php`
