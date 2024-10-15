@@ -4,27 +4,140 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Books and Authors Management</title>
-    <style>
+        <style>
+        /* Body Styling */
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f9;
+            color: #333;
             margin: 20px;
+            padding: 0;
         }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        h2 {
+            margin-top: 40px;
+            font-size: 1.8rem;
+            color: #34495e;
+            border-bottom: 2px solid #bdc3c7;
+            padding-bottom: 10px;
+        }
+
+        /* Form Styling */
+        form {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+        }
+
+        form input, form textarea, form select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #bdc3c7;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        form textarea {
+            resize: vertical;
+        }
+
+        form button {
+            background-color: #1abc9c;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        form button:hover {
+            background-color: #16a085;
+        }
+
+        /* Table Styling */
         table {
             width: 100%;
             border-collapse: collapse;
+            margin-bottom: 40px;
         }
-        table, th, td {
-            border: 1px solid black;
-            padding: 8px;
+
+        th, td {
+            padding: 15px;
             text-align: left;
+            border-bottom: 1px solid #ecf0f1;
         }
-        h2 {
-            margin-top: 40px;
+
+        th {
+            background-color: #2c3e50;
+            color: white;
+            font-weight: bold;
         }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        td button {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        td button:hover {
+            background-color: #c0392b;
+        }
+
+        /* Input Focus Styles */
+        form input:focus, form textarea:focus, form select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
+        }
+
+        /* Table Action Buttons */
+        td button:first-of-type {
+            background-color: #2980b9;
+            margin-right: 10px;
+        }
+
+        td button:first-of-type:hover {
+            background-color: #1f6395;
+        }
+		#nesnes {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    width: 140px; /* Adjust the size as needed */
+    height: 140px;
+    border-radius: 50%; /* This makes it circular */
+    object-fit: cover; /* Ensures the image covers the whole circular area */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional shadow for aesthetics */
+}
+
     </style>
 </head>
 <body>
-
+<img src="img/nesnes.jpg" alt="nesnes" id="nesnes">
 <h1>Books and Authors Management</h1>
 
 <h2>Add Book</h2>
@@ -72,6 +185,12 @@
     <tbody></tbody>
 </table>
 
+<h2>Auteur Details</h2>
+<div id="authorDetails">
+    <p>Klik op een auteur om details te zien.</p>
+</div>
+
+
 <h2>Add Genre</h2>
 <form id="genreForm">
     <input type="text" id="genre_name" placeholder="Genre Name" required>
@@ -88,7 +207,6 @@
     </thead>
     <tbody></tbody>
 </table>
-
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         fetchAuthorsAndGenres();
@@ -164,6 +282,7 @@
                     <td>
                         <button onclick="editAuthor(${author.id})">Edit</button>
                         <button onclick="deleteAuthor(${author.id})">Delete</button>
+						<button onclick="viewAuthorDetails(${author.id})">Bekijk</button>
                     </td>
                 `;
                 tbody.appendChild(row);
@@ -370,6 +489,42 @@ async function fetchGenres() {
             console.error("Error deleting author:", error);
         }
     }
+	async function viewAuthorDetails(id) {
+    try {
+        // Fetch the author details
+        const authorResponse = await fetch(`https://nessimelmazghari-odisee.be/getAuthor.php?id=${id}`);
+        const author = await authorResponse.json();
+        
+        // Fetch the books written by the author
+        const booksResponse = await fetch(`https://nessimelmazghari-odisee.be/getBooksByAuthor.php?author_id=${id}`);
+        const books = await booksResponse.json();
+        
+        // Display author details
+        const authorDetailsDiv = document.getElementById("authorDetails");
+        authorDetailsDiv.innerHTML = `
+            <h3>${author.first_name} ${author.last_name}</h3>
+            <p>Geboortejaar: ${author.birth_year}</p>
+            <h4>Boeken geschreven door deze auteur:</h4>
+        `;
+
+        // Display the books written by the author
+        if (books.length > 0) {
+            const booksList = document.createElement('ul');
+            books.forEach(book => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${book.title} (ISBN: ${book.isbn}) ㅤㅤ${book.description}`;
+                booksList.appendChild(listItem);
+            });
+            authorDetailsDiv.appendChild(booksList);
+        } else {
+            authorDetailsDiv.innerHTML += `<p>Deze auteur heeft nog geen boeken geschreven.</p>`;
+        }
+
+    } catch (error) {
+        console.error("Error fetching author details or books:", error);
+    }
+}
+
 
     // CRUD voor genres
     async function editGenre(id) {
