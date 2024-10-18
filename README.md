@@ -3,7 +3,7 @@
 ## Html pagina
 **Main html bestand en basis url waarin alle endpoints staan [https://nessimelmazghari-odisee.be/](https://nessimelmazghari-odisee.be/)**
 ## API documentatie
-** Api documentatie [https://nessimelmazghari-odisee.be/API-documentatie.html](https://nessimelmazghari-odisee.be/API-documentatie.html)
+**Api documentatie [https://nessimelmazghari-odisee.be/API-documentatie.html](https://nessimelmazghari-odisee.be/API-documentatie.html)**
 ## API Endpoints
 
 ### Boeken
