@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">books</string>
+    <string name="title_activity_main">books</string>
+    <string name="package_name">ionic.books</string>
+    <string name="custom_url_scheme">ionic.books</string>
+</resources>
